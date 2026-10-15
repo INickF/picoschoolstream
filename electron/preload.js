@@ -8,6 +8,15 @@ contextBridge.exposeInMainWorld('pico', {
   succeeded: (ip, deviceName) => ipcRenderer.invoke('pico:succeeded', ip, deviceName),
   failed: (ip, deviceName) => ipcRenderer.invoke('pico:failed', ip, deviceName),
   termination: (ip, deviceName) => ipcRenderer.invoke('pico:termination', ip, deviceName),
+  agentStatus: (ip) => ipcRenderer.invoke('agent:status', ip),
+  agentApps: (ip) => ipcRenderer.invoke('agent:apps', ip),
+  agentLaunch: (ip, pkg) => ipcRenderer.invoke('agent:launch', ip, pkg),
+  agentClose: (ip, pkg, all) => ipcRenderer.invoke('agent:close', ip, pkg, all),
+  scanLan: (onProgress) => {
+    const listener = (_e, progress) => onProgress(progress);
+    ipcRenderer.on('scan:progress', listener);
+    return ipcRenderer.invoke('scan:lan').finally(() => ipcRenderer.removeListener('scan:progress', listener));
+  },
   setActive: (casts) => ipcRenderer.send('pico:active', casts),
   toggleFullscreen: () => ipcRenderer.invoke('window:toggleFullscreen'),
 });

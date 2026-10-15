@@ -5,7 +5,10 @@ import TopBar from './components/TopBar.jsx';
 import HeadsetTile from './components/HeadsetTile.jsx';
 import FocusView from './components/FocusView.jsx';
 import HeadsetDialog from './components/HeadsetDialog.jsx';
-import { HeadsetIcon, PlusIcon } from './components/icons.jsx';
+import AppsDialog from './components/AppsDialog.jsx';
+import ScanDialog from './components/ScanDialog.jsx';
+import { syncAgents } from './agent/agentManager.js';
+import { HeadsetIcon, PlusIcon, SearchIcon } from './components/icons.jsx';
 import { I18nProvider, detectLanguage, translate } from './i18n.jsx';
 
 // Re-renders when any session changes so the "N live" counter stays current.
@@ -30,6 +33,10 @@ export default function App() {
 
   // Sessions must exist before tiles render, so reconcile during render (idempotent).
   useMemo(() => headsets && syncSessions(headsets), [headsets]);
+
+  useEffect(() => {
+    if (headsets) syncAgents(headsets);
+  }, [headsets]);
 
   const live = useLiveCount(headsets);
   const lang = settings.language ?? detectLanguage();
@@ -62,6 +69,11 @@ export default function App() {
     setDialog(null);
   };
 
+  const addFound = (devices) =>
+    devices.forEach((d, i) =>
+      add(t('dialog.defaultName', { n: String(headsets.length + i + 1).padStart(2, '0') }), d.ip),
+    );
+
   const deleteHeadset = (id) => {
     if (focusedId === id) setFocusedId(null);
     remove(id);
@@ -78,6 +90,8 @@ export default function App() {
           lang={lang}
           onLang={(language) => updateSettings({ language })}
           onAdd={() => setDialog({ mode: 'add' })}
+          onScan={() => setDialog({ mode: 'scan' })}
+          onApps={() => setDialog({ mode: 'apps', targets: headsets })}
           onEnableAll={enableAll}
           onDisableAll={disableAll}
         />
@@ -87,9 +101,14 @@ export default function App() {
             <HeadsetIcon width={56} height={56} strokeWidth={1.2} />
             <h2>{t('empty.title')}</h2>
             <p>{t('empty.text')}</p>
-            <button className="primary-btn" onClick={() => setDialog({ mode: 'add' })}>
-              <PlusIcon width={14} height={14} /> {t('app.add')}
-            </button>
+            <div className="empty-actions">
+              <button className="primary-btn" onClick={() => setDialog({ mode: 'scan' })}>
+                <SearchIcon width={14} height={14} /> {t('app.scan')}
+              </button>
+              <button className="ghost-btn" onClick={() => setDialog({ mode: 'add' })}>
+                <PlusIcon width={14} height={14} /> {t('app.add')}
+              </button>
+            </div>
           </div>
         ) : (
           <main className={`grid size-${settings.tileSize ?? 'md'}`}>
@@ -107,9 +126,15 @@ export default function App() {
           </main>
         )}
 
-        {focused && <FocusView headset={focused} onClose={closeFocus} onUpdate={update} />}
+        {focused && (
+          <FocusView headset={focused} dialogOpen={!!dialog} onClose={closeFocus} onUpdate={update} onDialog={setDialog} />
+        )}
 
-        {dialog && (
+        {dialog?.mode === 'apps' && <AppsDialog targets={dialog.targets} onClose={closeDialog} />}
+
+        {dialog?.mode === 'scan' && <ScanDialog headsets={headsets} onAdd={addFound} onClose={closeDialog} />}
+
+        {dialog && dialog.mode !== 'apps' && dialog.mode !== 'scan' && (
           <HeadsetDialog
             mode={dialog.mode}
             headset={dialog.headset}

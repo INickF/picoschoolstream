@@ -47,6 +47,21 @@ export const ExpandIcon = (p) => (
 export const RefreshIcon = (p) => (
   <svg {...base} {...p}><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7" /></svg>
 );
+export const AppsIcon = (p) => (
+  <svg {...base} {...p}>
+    <rect x="4" y="4" width="6.5" height="6.5" rx="1.5" /><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5" />
+    <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5" /><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" />
+  </svg>
+);
+export const BatteryIcon = (p) => (
+  <svg {...base} {...p}><rect x="3" y="7.5" width="16" height="9" rx="2" /><path d="M21.5 11v2" /></svg>
+);
+export const SearchIcon = (p) => (
+  <svg {...base} {...p}><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.2-4.2" /></svg>
+);
+export const CloseIcon = (p) => (
+  <svg {...base} {...p}><path d="M6 6l12 12M18 6L6 18" /></svg>
+);
 export const HeadsetIcon = (p) => (
   <svg {...base} {...p}>
     <path d="M3 9.5A2.5 2.5 0 0 1 5.5 7h13A2.5 2.5 0 0 1 21 9.5v5a2.5 2.5 0 0 1-2.5 2.5h-3.2a2 2 0 0 1-1.7-.95l-.9-1.5a.8.8 0 0 0-1.4 0l-.9 1.5a2 2 0 0 1-1.7.95H5.5A2.5 2.5 0 0 1 3 14.5z" />

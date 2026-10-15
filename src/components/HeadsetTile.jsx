@@ -1,15 +1,17 @@
 import { useCastSession } from '../hooks/useCastSession.js';
 import { useT } from '../i18n.jsx';
 import { getSession } from '../stream/sessionManager.js';
+import { closeApp, useAgent } from '../agent/agentManager.js';
 import KebabMenu from './KebabMenu.jsx';
 import StatusOverlay, { StatusBadge } from './StatusOverlay.jsx';
 import VideoSlot from './VideoSlot.jsx';
-import { ExpandIcon, MuteIcon, StopIcon, VolumeIcon } from './icons.jsx';
+import { BatteryIcon, ExpandIcon, MuteIcon, StopIcon, VolumeIcon } from './icons.jsx';
 
 export default function HeadsetTile({ headset, focused, onFocus, onUpdate, onDialog, onDelete }) {
   const t = useT();
   const session = getSession(headset.id);
   const state = useCastSession(session);
+  const agent = useAgent(headset.id);
   const live = state.status === 'playing';
   const stop = (fn) => (e) => {
     e.stopPropagation();
@@ -51,6 +53,10 @@ export default function HeadsetTile({ headset, focused, onFocus, onUpdate, onDia
             </button>
           )}
           <KebabMenu
+            agentOnline={agent?.online}
+            appRunning={!!agent?.foreground}
+            onApps={() => onDialog({ mode: 'apps', targets: [headset] })}
+            onCloseApp={() => closeApp([headset])}
             onRename={() => onDialog({ mode: 'rename', headset })}
             onChangeIp={() => onDialog({ mode: 'ip', headset })}
             onRestart={() => session?.restart()}
@@ -60,11 +66,33 @@ export default function HeadsetTile({ headset, focused, onFocus, onUpdate, onDia
       </div>
 
       <div className="tile-bottom">
-        <div className="tile-name" title={state.deviceName || undefined}>
-          {headset.name}
+        <div className="tile-info">
+          <div className="tile-name" title={state.deviceName || undefined}>
+            {headset.name}
+          </div>
+          <div className="tile-ip">{headset.ip}</div>
         </div>
-        <div className="tile-ip">{headset.ip}</div>
+        <AgentInfo agent={agent} />
       </div>
+    </div>
+  );
+}
+
+// Current app and battery reported by the headset's control agent.
+function AgentInfo({ agent }) {
+  const t = useT();
+  if (!agent) return null;
+  if (!agent.online) return <div className="tile-agent off">{t('agent.offline')}</div>;
+  const low = agent.battery <= 20 && !agent.charging;
+  return (
+    <div className="tile-agent">
+      <span className={`battery ${low ? 'low' : ''} ${agent.charging ? 'charging' : ''}`} title={t('agent.battery')}>
+        <BatteryIcon width={14} height={14} /> {agent.battery}%
+      </span>
+      <span className={`app-pill ${agent.foreground ? 'on' : ''}`} title={agent.foreground?.package}>
+        {agent.foreground ? agent.foreground.label : t('agent.home')}
+        {agent.asleep && <span className="asleep"> · {t('agent.asleep')}</span>}
+      </span>
     </div>
   );
 }

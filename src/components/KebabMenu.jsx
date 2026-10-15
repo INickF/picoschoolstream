@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useT } from '../i18n.jsx';
 import { DotsIcon } from './icons.jsx';
 
-export default function KebabMenu({ onRename, onChangeIp, onRestart, onDelete }) {
+export default function KebabMenu({ onApps, onCloseApp, agentOnline, appRunning, onRename, onChangeIp, onRestart, onDelete }) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [confirm, setConfirm] = useState(false);
@@ -39,6 +39,9 @@ export default function KebabMenu({ onRename, onChangeIp, onRestart, onDelete })
       </button>
       {open && (
         <div className="menu">
+          <button disabled={!agentOnline} onClick={pick(onApps)}>{t('menu.apps')}</button>
+          <button disabled={!appRunning} onClick={pick(onCloseApp)}>{t('menu.closeApp')}</button>
+          <div className="menu-sep" />
           <button onClick={pick(onRename)}>{t('menu.rename')}</button>
           <button onClick={pick(onChangeIp)}>{t('menu.changeIp')}</button>
           <button onClick={pick(onRestart)}>{t('menu.restart')}</button>

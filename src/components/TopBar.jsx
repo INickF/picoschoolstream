@@ -1,5 +1,5 @@
 import { LANGUAGES, useT } from '../i18n.jsx';
-import { GridLargeIcon, GridMediumIcon, GridSmallIcon, HeadsetIcon, PlayIcon, PlusIcon, StopIcon } from './icons.jsx';
+import { AppsIcon, SearchIcon, GridLargeIcon, GridMediumIcon, GridSmallIcon, HeadsetIcon, PlayIcon, PlusIcon, StopIcon } from './icons.jsx';
 
 const SIZES = [
   ['sm', GridSmallIcon],
@@ -7,7 +7,7 @@ const SIZES = [
   ['lg', GridLargeIcon],
 ];
 
-export default function TopBar({ live, total, tileSize, onTileSize, lang, onLang, onAdd, onEnableAll, onDisableAll }) {
+export default function TopBar({ live, total, tileSize, onTileSize, lang, onLang, onAdd, onScan, onApps, onEnableAll, onDisableAll }) {
   const t = useT();
   return (
     <header className="topbar">
@@ -38,11 +38,17 @@ export default function TopBar({ live, total, tileSize, onTileSize, lang, onLang
           ))}
         </div>
         <div className="divider" />
+        <button className="ghost-btn" onClick={onApps}>
+          <AppsIcon width={14} height={14} /> {t('app.apps')}
+        </button>
         <button className="ghost-btn" onClick={onEnableAll}>
           <PlayIcon width={12} height={12} /> {t('app.enableAll')}
         </button>
         <button className="ghost-btn" onClick={onDisableAll}>
           <StopIcon width={11} height={11} /> {t('app.disableAll')}
+        </button>
+        <button className="ghost-btn" onClick={onScan}>
+          <SearchIcon width={14} height={14} /> {t('app.scan')}
         </button>
         <button className="primary-btn" onClick={onAdd}>
           <PlusIcon width={14} height={14} /> {t('app.add')}

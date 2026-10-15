@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const store = require('./store');
 const pico = require('./picoApi');
+const agent = require('./agentApi');
+const scanner = require('./scanner');
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -43,6 +45,15 @@ ipcMain.handle('pico:initiative', (_e, ip, deviceName) => pico.initiative(ip, de
 ipcMain.handle('pico:succeeded', (_e, ip, deviceName) => pico.succeeded(ip, deviceName));
 ipcMain.handle('pico:failed', (_e, ip, deviceName) => pico.failed(ip, deviceName));
 ipcMain.handle('pico:termination', (_e, ip, deviceName) => pico.termination(ip, deviceName));
+ipcMain.handle('agent:status', (_e, ip) => agent.status(ip));
+ipcMain.handle('agent:apps', (_e, ip) => agent.apps(ip));
+ipcMain.handle('agent:launch', (_e, ip, pkg) => agent.launch(ip, pkg));
+ipcMain.handle('agent:close', (_e, ip, pkg, all) => agent.close(ip, pkg, all));
+ipcMain.handle('scan:lan', (e) =>
+  scanner.scan((progress) => {
+    if (!e.sender.isDestroyed()) e.sender.send('scan:progress', progress);
+  }),
+);
 ipcMain.on('pico:active', (_e, casts) => {
   activeCasts = casts || {};
 });

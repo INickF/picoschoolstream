@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useCastSession } from '../hooks/useCastSession.js';
 import { getSession } from '../stream/sessionManager.js';
+import { closeApp, useAgent } from '../agent/agentManager.js';
 import { useT } from '../i18n.jsx';
 import StatusOverlay, { StatusBadge } from './StatusOverlay.jsx';
 import VideoSlot from './VideoSlot.jsx';
-import { BackIcon, ExpandIcon, MuteIcon, StopIcon, VolumeIcon } from './icons.jsx';
+import { AppsIcon, BackIcon, BatteryIcon, CloseIcon, ExpandIcon, MuteIcon, StopIcon, VolumeIcon } from './icons.jsx';
 
 const HIDE_MS = 3000;
 
@@ -20,10 +21,12 @@ function Segmented({ value, options, onChange }) {
   );
 }
 
-export default function FocusView({ headset, onClose, onUpdate }) {
+export default function FocusView({ headset, dialogOpen, onClose, onUpdate, onDialog }) {
   const t = useT();
   const session = getSession(headset.id);
   const state = useCastSession(session);
+  const agent = useAgent(headset.id);
+  const [appError, setAppError] = useState('');
   const [controls, setControls] = useState(true);
   const hideTimer = useRef(null);
 
@@ -36,6 +39,8 @@ export default function FocusView({ headset, onClose, onUpdate }) {
   useEffect(() => {
     poke();
     const onKey = (e) => {
+      // Keys belong to the dialog while one is open over the focus view.
+      if (dialogOpen) return;
       if (e.key === 'Escape') onClose();
       // e.code is layout-independent, so M also works on a Russian keyboard.
       if (e.code === 'KeyM') onUpdate(headset.id, { muted: !headset.muted });
@@ -45,9 +50,24 @@ export default function FocusView({ headset, onClose, onUpdate }) {
       window.removeEventListener('keydown', onKey);
       clearTimeout(hideTimer.current);
     };
-  }, [headset.id, headset.muted, onClose, onUpdate]);
+  }, [headset.id, headset.muted, dialogOpen, onClose, onUpdate]);
 
   const set = (patch) => onUpdate(headset.id, patch);
+
+  useEffect(() => {
+    if (!appError) return;
+    const timer = setTimeout(() => setAppError(''), 5000);
+    return () => clearTimeout(timer);
+  }, [appError]);
+
+  const closeCurrentApp = async () => {
+    setAppError('');
+    const [{ res }] = await closeApp([headset]);
+    if (!res.ok) {
+      const key = `agentErr.${res.error}`;
+      setAppError(t(key) === key ? res.error : t(key));
+    }
+  };
 
   return (
     <div className={`focus ${controls ? '' : 'hide-controls'}`} onMouseMove={poke}>
@@ -68,6 +88,11 @@ export default function FocusView({ headset, onClose, onUpdate }) {
           </span>
         </div>
         <StatusBadge status={state.status} />
+        {agent?.online && (
+          <span className={`badge battery ${agent.battery <= 20 && !agent.charging ? 'low' : ''} ${agent.charging ? 'charging' : ''}`} title={t('agent.battery')}>
+            <BatteryIcon width={14} height={14} /> {agent.battery}%
+          </span>
+        )}
       </div>
 
       <div className="focus-bar bottom">
@@ -113,6 +138,34 @@ export default function FocusView({ headset, onClose, onUpdate }) {
               set({ volume, muted: volume === 0 });
             }}
           />
+        </div>
+        <div className="bar-divider" />
+        <div className="group focus-app">
+          <span className="label">{t('focus.app')}</span>
+          <span
+            className={`app-pill ${agent?.foreground ? 'on' : ''} ${appError ? 'error' : ''}`}
+            title={appError || agent?.foreground?.package}
+          >
+            {appError
+              ? appError
+              : !agent?.online
+                ? t('agent.offline')
+                : agent.foreground
+                  ? agent.foreground.label
+                  : t('agent.home')}
+            {agent?.online && agent.asleep && !appError && <span className="asleep"> · {t('agent.asleep')}</span>}
+          </span>
+          <button
+            className="glass-btn"
+            title={t('menu.apps')}
+            disabled={!agent?.online}
+            onClick={() => onDialog({ mode: 'apps', targets: [headset] })}
+          >
+            <AppsIcon />
+          </button>
+          <button className="glass-btn" title={t('menu.closeApp')} disabled={!agent?.foreground} onClick={closeCurrentApp}>
+            <CloseIcon />
+          </button>
         </div>
         <div className="bar-divider" />
         {state.wanted && (

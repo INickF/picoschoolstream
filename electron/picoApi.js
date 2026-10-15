@@ -42,6 +42,8 @@ async function post(ip, endpoint, extra = {}, timeoutMs = TIMEOUT_MS) {
 module.exports = {
   status: (ip, timeInterval) =>
     post(ip, 'cast_status', timeInterval === undefined ? {} : { timeInterval }),
+  // Short-timeout status call used by the LAN scan to recognise a headset.
+  probe: (ip, timeoutMs) => post(ip, 'cast_status', {}, timeoutMs),
   initiative: (ip, deviceName) => post(ip, 'cast_initiative', { deviceName }),
   succeeded: (ip, deviceName) => post(ip, 'cast_succeeded', { deviceName }),
   failed: (ip, deviceName) => post(ip, 'cast_failed', { deviceName }),

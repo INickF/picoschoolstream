@@ -27,6 +27,20 @@ Desktop viewer for live casts from many PICO 4 headsets at once (Electron + Reac
   works in a normal browser). Each headset accepts one
   viewer at a time; if a browser tab is already watching it, the tile shows *Busy*.
 
+## Finding headsets
+**Find headsets** in the top bar (also on the empty screen) scans every local /24 subnet of this PC
+(`electron/scanner.js`, about 10 s). An address counts as a headset if it answers on the agent port 3350
+or PICO's cast server on 3342; HTTP probes are used instead of ping because Windows and the headsets often drop ICMP.
+New headsets are preselected, already added ones are marked, and selected ones are added as *Headset NN*.
+A VPN that routes the local subnet through its tunnel hides the headsets from the scan.
+
+## App control (PicoSchoolAgent)
+Launching and closing apps needs the agent from `D:\PicoSchoolAgent` installed on each headset (see its README).
+- Each tile shows the headset's battery and current app (or *No agent*).
+- `⋮` on a tile: **Apps…** (pick an app to launch on that headset) and **Close current app**.
+- Top bar **Apps**: launch an app on every headset whose agent is online, or **Close running apps** on all of them.
+- Agents are polled every 4 s on `http://<ip>:3350` through the main process (`electron/agentApi.js`).
+
 ## Protocol (PICO cast server, `http://<ip>:3342`)
 | Request | Purpose |
 |---|---|
