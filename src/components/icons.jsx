@@ -62,6 +62,12 @@ export const SearchIcon = (p) => (
 export const CloseIcon = (p) => (
   <svg {...base} {...p}><path d="M6 6l12 12M18 6L6 18" /></svg>
 );
+export const InstallIcon = (p) => (
+  <svg {...base} {...p}><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14" /></svg>
+);
+export const TrashIcon = (p) => (
+  <svg {...base} {...p}><path d="M4.5 7h15M10 7V4.5h4V7M6.5 7l1 12.5h9l1-12.5M10.5 11v5M13.5 11v5" /></svg>
+);
 export const HeadsetIcon = (p) => (
   <svg {...base} {...p}>
     <path d="M3 9.5A2.5 2.5 0 0 1 5.5 7h13A2.5 2.5 0 0 1 21 9.5v5a2.5 2.5 0 0 1-2.5 2.5h-3.2a2 2 0 0 1-1.7-.95l-.9-1.5a.8.8 0 0 0-1.4 0l-.9 1.5a2 2 0 0 1-1.7.95H5.5A2.5 2.5 0 0 1 3 14.5z" />

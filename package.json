@@ -2,6 +2,7 @@
   "name": "picoschoolstream",
   "version": "0.1.0",
   "description": "PicoSchoolStream desktop app built with Electron, React and Vite",
+  "author": "INickF",
   "main": "electron/main.js",
   "scripts": {
     "dev": "concurrently -k \"vite\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .\"",
@@ -27,12 +28,23 @@
   "build": {
     "appId": "com.picoschoolstream.app",
     "productName": "PicoSchoolStream",
+    "directories": {
+      "output": "release"
+    },
     "files": [
       "dist/**/*",
       "electron/**/*"
     ],
     "win": {
       "target": "nsis"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Education",
+      "maintainer": "INickF"
     }
   }
 }

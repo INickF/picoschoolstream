@@ -70,4 +70,4 @@ async function scan(onProgress) {
   return { subnets: subnets.map((s) => `${s.prefix}.0/24`), found: found.sort(byIp) };
 }
 
-module.exports = { scan };
+module.exports = { scan, localSubnets };

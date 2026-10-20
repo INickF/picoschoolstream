@@ -27,4 +27,7 @@ module.exports = {
   launch: (ip, pkg) => call(ip, 'launch', { package: pkg, closePrevious: true }, 10000),
   // pkg null closes the foreground app; all closes every app.
   close: (ip, pkg, all) => call(ip, 'close', all ? { all: true } : pkg ? { package: pkg } : {}),
+  // Both start a job on the headset and return at once; progress comes in status.job.
+  install: (ip, url) => call(ip, 'install', { url }),
+  uninstall: (ip, pkg) => call(ip, 'uninstall', { package: pkg }),
 };

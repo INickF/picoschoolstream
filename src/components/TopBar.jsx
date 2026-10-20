@@ -41,10 +41,10 @@ export default function TopBar({ live, total, tileSize, onTileSize, lang, onLang
         <button className="ghost-btn" onClick={onApps}>
           <AppsIcon width={14} height={14} /> {t('app.apps')}
         </button>
-        <button className="ghost-btn" onClick={onEnableAll}>
+        <button className="ghost-btn go" onClick={onEnableAll}>
           <PlayIcon width={12} height={12} /> {t('app.enableAll')}
         </button>
-        <button className="ghost-btn" onClick={onDisableAll}>
+        <button className="ghost-btn halt" onClick={onDisableAll}>
           <StopIcon width={11} height={11} /> {t('app.disableAll')}
         </button>
         <button className="ghost-btn" onClick={onScan}>

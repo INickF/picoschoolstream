@@ -1,9 +1,10 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
 const store = require('./store');
 const pico = require('./picoApi');
 const agent = require('./agentApi');
 const scanner = require('./scanner');
+const apkServer = require('./apkServer');
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -49,6 +50,19 @@ ipcMain.handle('agent:status', (_e, ip) => agent.status(ip));
 ipcMain.handle('agent:apps', (_e, ip) => agent.apps(ip));
 ipcMain.handle('agent:launch', (_e, ip, pkg) => agent.launch(ip, pkg));
 ipcMain.handle('agent:close', (_e, ip, pkg, all) => agent.close(ip, pkg, all));
+ipcMain.handle('agent:pickApk', async (e) => {
+  const res = await dialog.showOpenDialog(BrowserWindow.fromWebContents(e.sender), {
+    properties: ['openFile'],
+    filters: [{ name: 'Android app', extensions: ['apk'] }],
+  });
+  return res.canceled ? null : res.filePaths[0];
+});
+ipcMain.handle('agent:install', async (_e, ip, filePath, anyNetwork) => {
+  const url = await apkServer.urlFor(filePath, ip, { anyNetwork });
+  if (!url) return { ok: false, error: 'no_shared_network' };
+  return agent.install(ip, url);
+});
+ipcMain.handle('agent:uninstall', (_e, ip, pkg) => agent.uninstall(ip, pkg));
 ipcMain.handle('scan:lan', (e) =>
   scanner.scan((progress) => {
     if (!e.sender.isDestroyed()) e.sender.send('scan:progress', progress);

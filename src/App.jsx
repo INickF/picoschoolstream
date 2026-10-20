@@ -130,7 +130,14 @@ export default function App() {
           <FocusView headset={focused} dialogOpen={!!dialog} onClose={closeFocus} onUpdate={update} onDialog={setDialog} />
         )}
 
-        {dialog?.mode === 'apps' && <AppsDialog targets={dialog.targets} onClose={closeDialog} />}
+        {dialog?.mode === 'apps' && (
+          <AppsDialog
+            targets={dialog.targets}
+            anyNetwork={!!settings.installAnyNetwork}
+            onAnyNetwork={(installAnyNetwork) => updateSettings({ installAnyNetwork })}
+            onClose={closeDialog}
+          />
+        )}
 
         {dialog?.mode === 'scan' && <ScanDialog headsets={headsets} onAdd={addFound} onClose={closeDialog} />}
 

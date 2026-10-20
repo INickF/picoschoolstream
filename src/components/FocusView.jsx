@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useCastSession } from '../hooks/useCastSession.js';
 import { getSession } from '../stream/sessionManager.js';
 import { closeApp, useAgent } from '../agent/agentManager.js';
+import { errorText, jobText, jobTone } from '../agent/agentText.js';
 import { useT } from '../i18n.jsx';
 import StatusOverlay, { StatusBadge } from './StatusOverlay.jsx';
 import VideoSlot from './VideoSlot.jsx';
@@ -63,10 +64,7 @@ export default function FocusView({ headset, dialogOpen, onClose, onUpdate, onDi
   const closeCurrentApp = async () => {
     setAppError('');
     const [{ res }] = await closeApp([headset]);
-    if (!res.ok) {
-      const key = `agentErr.${res.error}`;
-      setAppError(t(key) === key ? res.error : t(key));
-    }
+    if (!res.ok) setAppError(errorText(t, res.error));
   };
 
   return (
@@ -96,8 +94,7 @@ export default function FocusView({ headset, dialogOpen, onClose, onUpdate, onDi
       </div>
 
       <div className="focus-bar bottom">
-        <div className="group">
-          <span className="label">{t('focus.quality')}</span>
+        <div className="group tone-quality" role="group" title={t('focus.quality')} aria-label={t('focus.quality')}>
           <Segmented
             value={headset.quality}
             options={[
@@ -107,8 +104,7 @@ export default function FocusView({ headset, dialogOpen, onClose, onUpdate, onDi
             onChange={(quality) => set({ quality })}
           />
         </div>
-        <div className="group">
-          <span className="label">{t('focus.ratio')}</span>
+        <div className="group tone-ratio" role="group" title={t('focus.ratio')} aria-label={t('focus.ratio')}>
           <Segmented
             value={headset.ratio}
             options={[
@@ -118,7 +114,7 @@ export default function FocusView({ headset, dialogOpen, onClose, onUpdate, onDi
             onChange={(ratio) => set({ ratio })}
           />
         </div>
-        <div className="group">
+        <div className={`group tone-volume ${headset.muted ? 'muted' : ''}`}>
           <button
             className="glass-btn"
             title={`${headset.muted ? t('tile.unmute') : t('tile.mute')} (M)`}
@@ -139,43 +135,48 @@ export default function FocusView({ headset, dialogOpen, onClose, onUpdate, onDi
             }}
           />
         </div>
-        <div className="bar-divider" />
-        <div className="group focus-app">
-          <span className="label">{t('focus.app')}</span>
-          <span
-            className={`app-pill ${agent?.foreground ? 'on' : ''} ${appError ? 'error' : ''}`}
-            title={appError || agent?.foreground?.package}
-          >
-            {appError
-              ? appError
-              : !agent?.online
-                ? t('agent.offline')
-                : agent.foreground
-                  ? agent.foreground.label
-                  : t('agent.home')}
-            {agent?.online && agent.asleep && !appError && <span className="asleep"> · {t('agent.asleep')}</span>}
-          </span>
+        <div className="group focus-app tone-app" role="group" title={t('focus.app')} aria-label={t('focus.app')}>
+          {agent?.online && agent.job && !appError ? (
+            <span className={`app-pill job ${jobTone(agent.job)}`} title={jobText(t, agent.job)}>
+              {jobText(t, agent.job)}
+            </span>
+          ) : (
+            <span
+              className={`app-pill ${agent?.foreground ? 'on' : ''} ${appError ? 'error' : ''}`}
+              title={appError || agent?.foreground?.package}
+            >
+              {appError
+                ? appError
+                : !agent?.online
+                  ? t('agent.offline')
+                  : agent.foreground
+                    ? agent.foreground.label
+                    : t('agent.home')}
+              {agent?.online && agent.asleep && !appError && <span className="asleep"> · {t('agent.asleep')}</span>}
+            </span>
+          )}
           <button
-            className="glass-btn"
+            className="bar-btn apps"
             title={t('menu.apps')}
             disabled={!agent?.online}
             onClick={() => onDialog({ mode: 'apps', targets: [headset] })}
           >
-            <AppsIcon />
+            <AppsIcon width={15} height={15} /> {t('focus.appsBtn')}
           </button>
-          <button className="glass-btn" title={t('menu.closeApp')} disabled={!agent?.foreground} onClick={closeCurrentApp}>
-            <CloseIcon />
+          <button className="bar-btn close" title={t('menu.closeApp')} disabled={!agent?.foreground} onClick={closeCurrentApp}>
+            <CloseIcon width={14} height={14} /> {t('focus.closeAppBtn')}
           </button>
         </div>
-        <div className="bar-divider" />
-        {state.wanted && (
-          <button className="glass-btn" title={t('tile.stop')} onClick={() => session?.stop()}>
-            <StopIcon width={12} height={12} />
+        <div className="group">
+          {state.wanted && (
+            <button className="bar-btn stop" title={t('tile.stop')} onClick={() => session?.stop()}>
+              <StopIcon width={11} height={11} /> {t('focus.stopBtn')}
+            </button>
+          )}
+          <button className="bar-btn icon" title={t('focus.fullscreen')} onClick={() => window.pico.toggleFullscreen()}>
+            <ExpandIcon />
           </button>
-        )}
-        <button className="glass-btn" title={t('focus.fullscreen')} onClick={() => window.pico.toggleFullscreen()}>
-          <ExpandIcon />
-        </button>
+        </div>
       </div>
     </div>
   );

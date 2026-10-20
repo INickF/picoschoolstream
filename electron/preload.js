@@ -12,6 +12,9 @@ contextBridge.exposeInMainWorld('pico', {
   agentApps: (ip) => ipcRenderer.invoke('agent:apps', ip),
   agentLaunch: (ip, pkg) => ipcRenderer.invoke('agent:launch', ip, pkg),
   agentClose: (ip, pkg, all) => ipcRenderer.invoke('agent:close', ip, pkg, all),
+  agentPickApk: () => ipcRenderer.invoke('agent:pickApk'),
+  agentInstall: (ip, filePath, anyNetwork) => ipcRenderer.invoke('agent:install', ip, filePath, anyNetwork),
+  agentUninstall: (ip, pkg) => ipcRenderer.invoke('agent:uninstall', ip, pkg),
   scanLan: (onProgress) => {
     const listener = (_e, progress) => onProgress(progress);
     ipcRenderer.on('scan:progress', listener);

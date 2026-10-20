@@ -413,27 +413,73 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  gap: 18px;
-  padding: 8px 10px 8px 16px;
-  border-radius: 14px;
-  background: var(--glass);
-  backdrop-filter: blur(14px);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 12px 40px rgba(0, 0, 0, 0.4);
+  max-width: calc(100vw - 32px);
+  gap: 6px;
+  padding: 6px;
+  border-radius: 16px;
+  background: rgba(14, 16, 21, 0.78);
+  backdrop-filter: blur(16px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07), 0 14px 44px rgba(0, 0, 0, 0.5);
   white-space: nowrap;
 }
 .focus.hide-controls .focus-bar.bottom { transform: translate(-50%, 8px); }
 .focus-bar .group { display: flex; align-items: center; gap: 8px; }
-.focus-bar .label { color: var(--dim); font-size: 12px; }
-.focus-bar .segmented { background: rgba(0, 0, 0, 0.3); border-color: rgba(255, 255, 255, 0.06); }
-.focus-bar .glass-btn { background: transparent; }
-.focus-bar .glass-btn:hover { background: rgba(255, 255, 255, 0.08); }
 .focus-bar.top .glass-btn { background: var(--glass); }
 .glass-btn:disabled { opacity: 0.35; cursor: default; }
 .glass-btn:disabled:hover { background: var(--glass); color: #d5d8e0; }
-.focus-bar .glass-btn:disabled:hover { background: transparent; }
-.focus-app .app-pill { max-width: 220px; padding: 3px 10px; font-size: 12px; background: rgba(0, 0, 0, 0.3); }
+
+/* Key banks: like a vision mixer, every function has its own key colour so the hand finds it by hue. */
+.focus-bar.bottom .group {
+  --k: var(--dim);
+  height: 46px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--k) 9%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k) 18%, transparent);
+}
+.focus-bar.bottom .tone-quality, .focus-bar.bottom .tone-ratio { --k: #7aa2ff; }
+.focus-bar.bottom .tone-volume { --k: #f0b450; }
+.focus-bar.bottom .tone-volume.muted { --k: #8a8f9c; }
+.focus-bar.bottom .tone-app { --k: #c38bff; }
+
+.focus-bar.bottom .segmented { padding: 2px; background: rgba(0, 0, 0, 0.35); border-color: transparent; }
+.focus-bar.bottom .segmented button { height: 30px; padding: 0 12px; font-size: 12.5px; }
+.focus-bar.bottom .segmented button:hover:not(.active) { color: var(--signal); background: rgba(255, 255, 255, 0.05); }
+.focus-bar.bottom .segmented button.active { background: var(--k); color: #0d0f14; font-weight: 600; box-shadow: none; }
+
+.focus-bar.bottom .glass-btn { width: 34px; height: 34px; background: transparent; color: var(--k); }
+.focus-bar.bottom .glass-btn:hover { background: color-mix(in srgb, var(--k) 18%, transparent); color: #fff; }
+.focus-bar.bottom .glass-btn:disabled:hover { background: transparent; color: var(--k); }
+.focus-bar.bottom .volume { width: 84px; margin-right: 6px; accent-color: var(--k); }
+.focus-bar.bottom .volume::-webkit-slider-thumb { background: var(--k); }
+
+.bar-btn {
+  --k: var(--dim);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 13px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--k) 70%, #fff);
+  background: color-mix(in srgb, var(--k) 16%, transparent);
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+.bar-btn:hover { background: color-mix(in srgb, var(--k) 28%, transparent); color: #fff; }
+.bar-btn:active { transform: translateY(1px); }
+.bar-btn:disabled { opacity: 0.38; cursor: default; transform: none; background: color-mix(in srgb, var(--k) 10%, transparent); }
+.bar-btn.apps { --k: #c38bff; background: #c38bff; color: #15101d; }
+.bar-btn.apps:hover:not(:disabled) { background: #d2a6ff; color: #15101d; }
+.bar-btn.apps:disabled { background: color-mix(in srgb, var(--k) 16%, transparent); color: var(--k); }
+.bar-btn.close { --k: #c38bff; }
+.bar-btn.stop { --k: var(--fault); }
+.bar-btn.icon { --k: var(--dim); width: 34px; padding: 0; justify-content: center; }
+
+.focus-app .app-pill { max-width: 180px; padding: 4px 10px; font-size: 12px; background: rgba(0, 0, 0, 0.35); }
+.focus-app .app-pill.on { color: #fff; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k) 45%, transparent); }
 .app-pill.error { color: var(--fault); box-shadow: inset 0 0 0 1px rgba(240, 96, 90, 0.35); }
-.bar-divider { width: 1px; height: 22px; background: rgba(255, 255, 255, 0.1); margin: 0 -6px; }
 
 .volume {
   width: 96px;
@@ -536,8 +582,70 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .apps-fail { color: var(--fault); margin-top: 2px; }
 .modal-actions.spread { justify-content: space-between; }
 .ghost-btn.danger { color: var(--fault); }
+.ghost-btn.go { color: var(--live); background: rgba(52, 208, 127, 0.1); border-color: rgba(52, 208, 127, 0.28); }
+.ghost-btn.go:hover { background: rgba(52, 208, 127, 0.18); border-color: rgba(52, 208, 127, 0.45); }
+.ghost-btn.halt { color: var(--fault); background: rgba(240, 96, 90, 0.08); border-color: rgba(240, 96, 90, 0.26); }
+.ghost-btn.halt:hover { background: rgba(240, 96, 90, 0.16); border-color: rgba(240, 96, 90, 0.42); }
+.primary-btn:active, .ghost-btn:active { transform: translateY(1px); }
 .ghost-btn:disabled { opacity: 0.45; cursor: default; }
 .modal input.apps-filter { width: 100%; }
+/* Undo the stacked form-label style of .modal label for the checkbox row. */
+.modal label.apps-option { flex-direction: row; align-items: center; gap: 8px; color: var(--dim); font-size: 12px; font-weight: 400; cursor: pointer; }
+.modal label.apps-option:hover { color: var(--signal); }
+.apps-option input { width: 15px; height: 15px; margin: 0; accent-color: #5d6ef0; cursor: pointer; }
+
+/* Row = launch button + delete button; the delete button shows on hover and asks once more before deleting. */
+.app-item { display: flex; align-items: center; gap: 2px; padding-right: 6px; border-radius: var(--r-ctl); }
+.app-item:hover { background: var(--bezel-hi); }
+.app-item .app-row { flex: 1; min-width: 0; }
+.app-item .app-row:hover:not(:disabled) { background: transparent; }
+.app-del {
+  flex: none;
+  height: 30px;
+  min-width: 30px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--faint);
+  opacity: 0;
+  transition: opacity 0.12s, background 0.12s, color 0.12s;
+}
+.app-item:hover .app-del, .app-del:focus-visible, .app-del.confirm { opacity: 1; }
+.app-del:hover { color: var(--fault); background: rgba(240, 96, 90, 0.12); }
+.app-del.confirm, .app-del.confirm:hover { color: #1c0d0c; background: var(--fault); }
+.app-del:disabled { opacity: 0.3; cursor: default; }
+
+/* Install / delete jobs: violet while running, amber when the wearer has to act, then green or red. */
+.apps-jobs {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px 10px;
+  border-radius: var(--r-ctl);
+  background: var(--console);
+  font-size: 12px;
+}
+.job-row { --c: #c38bff; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.job-row::before { content: ''; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+.job-row.running::before { animation: blink 1.1s ease-in-out infinite; }
+.job-row.wearer { --c: var(--warn); }
+.job-row.done { --c: var(--live); }
+.job-row.failed { --c: var(--fault); }
+.job-name { flex: none; color: var(--dim); }
+.job-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.job-row.wearer .job-text, .job-row.failed .job-text { color: var(--c); }
+.job-bar { flex: none; width: 80px; height: 4px; border-radius: 2px; background: var(--edge); overflow: hidden; }
+.job-bar > span { display: block; height: 100%; background: var(--c); transition: width 0.3s; }
+
+.app-pill.job { --c: #c38bff; color: var(--signal); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 50%, transparent); }
+.app-pill.job.wearer { --c: var(--warn); color: var(--warn); }
+.app-pill.job.done { --c: var(--live); }
+.app-pill.job.failed { --c: var(--fault); color: var(--fault); }
 
 /* ---------- Scan dialog ---------- */
 .scan-bar { height: 3px; border-radius: 2px; background: var(--edge); overflow: hidden; margin-top: -6px; }
